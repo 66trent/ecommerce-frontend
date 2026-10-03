@@ -3,6 +3,16 @@ import { bearer } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { v7 as uuidv7 } from "uuid";
+import { sendPasswordResetEmail } from "./send-auth-email";
+
+function getAppUrl(): string {
+  const raw =
+    process.env.BETTER_AUTH_APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000";
+  return raw.replace(/\/+$/, "");
+}
+const appUrl = getAppUrl();
 
 const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
@@ -18,7 +28,14 @@ const pool = new Pool({
 export const auth = betterAuth({
   database: pool,
   plugins: [bearer(), nextCookies()],
-  emailAndPassword: { enabled: true, requireEmailVerification: true },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, token }) => {
+      const resetPasswordUrl = `${appUrl}/auth/reset-password?token=${encodeURIComponent(token)}`;
+      await sendPasswordResetEmail(user.email, user.name, resetPasswordUrl);
+    },
+  },
   secret: process.env.BETTER_AUTH_SECRET || "",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   basePath: "/api/auth",
