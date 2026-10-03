@@ -8,7 +8,7 @@ interface SendAuthEmailPayLoad {
 }
 
 async function postAuthEmail(
-  path: "/email/verification" | "email/password-reset",
+  path: "/email/verification" | "/email/password-reset",
   payload: SendAuthEmailPayLoad,
 ): Promise<void> {
   const secret = internalSecret("auth email was NOT sent");
@@ -37,10 +37,11 @@ export async function sendVerificationEmail(
 ): Promise<void> {
   await postAuthEmail("/email/verification", { to, name, url });
 }
+
 export async function sendPasswordResetEmail(
   to: string,
   name: string,
   url: string,
 ): Promise<void> {
-    await postAuthEmail("/email/password-reset", { to, name, url });
+  await postAuthEmail("/email/password-reset", { to, name, url });
 }
