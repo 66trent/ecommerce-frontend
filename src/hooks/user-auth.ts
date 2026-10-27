@@ -60,3 +60,26 @@ export const useSignUp = (
     },
   });
 };
+
+export const useResendVerificationEmail = (messages?: AuthToastMessages) => {
+  return useMutation({
+    mutationFn: (email: string) => authService.resendVerificationEmail(email),
+
+    onSuccess: () => {
+      toast.success(
+        messages?.success ?? "Verification email sent! Please check your inbox.",
+      );
+    },
+
+    onError: (error: unknown) => {
+      const message = (error as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message;
+
+      toast.error(
+        typeof message === "string"
+          ? message
+          : (messages?.error ?? "Failed to send verification email"),
+      );
+    },
+  });
+};
