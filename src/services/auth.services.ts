@@ -1,5 +1,6 @@
 import { getAuthClient } from "@/lib/auth/auth-client";
-import { AuthResponse, SignUpDto, User } from "@/types/api.types";
+import { AuthResponse, SignInDto, SignUpDto, User } from "@/types/api.types";
+import { error } from "console";
 
 function mapAuthUser(u: {
   id: string;
@@ -69,5 +70,51 @@ export const authService = {
       const msg = res.error.message || "Gửi message thất bại!";
       throw Object.assign(new Error(msg), { response: { data: { message: msg } } });
     }
+  },
+
+  signIn: async (
+    data: SignInDto & { rememberMe?: boolean },
+  ): Promise<AuthResponse> => {
+    const res = await getAuthClient().signIn.email({
+      email: data.email,
+      password: data.password,
+      rememberMe: data.rememberMe,
+    });
+
+    if (res.error) {
+      throw Object.assign(new Error(res.error.message || "Đăng nhập thất bại"), {
+        response: { data: { message: res.error.message } },
+      });
+    }
+
+    const raw = res.data?.user;
+
+    if (!raw) {
+      throw Object.assign(new Error("Đăng nhập thất bại"), {
+        response: { data: { message: "Không lấy được thông tin user" } },
+      });
+    }
+
+    const user = mapAuthUser(raw);
+
+    if (user.emailVerified === false) {
+      throw Object.assign(
+        new Error(
+          "Vui lòng xác thực email trước khi đăng nhập, kiểm tra hộp thư của bạn",
+        ),
+        {
+          response: {
+            data: {
+              message:
+                "Vui lòng xác thực email trước khi đăng nhập, kiểm tra hộp thư của bạn",
+            },
+          },
+        },
+      );
+    }
+
+    const token = await readSessionToken();
+
+    return { success: true, user, token };
   },
 };

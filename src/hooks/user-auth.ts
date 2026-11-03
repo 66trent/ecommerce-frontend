@@ -1,5 +1,5 @@
 import { authService } from "@/services/auth.services";
-import { SignUpDto } from "@/types/api.types";
+import { SignInDto, SignUpDto } from "@/types/api.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -79,6 +79,42 @@ export const useResendVerificationEmail = (messages?: AuthToastMessages) => {
         typeof message === "string"
           ? message
           : (messages?.error ?? "Failed to send verification email"),
+      );
+    },
+  });
+};
+
+export const useSignIn = (messages?: AuthToastMessages, redirectTo?: string) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SignInDto & { rememberMe?: boolean }) =>
+      authService.signIn(data),
+
+    onSuccess: (response) => {
+      queryClient.setQueryData(["auth", "session"], {
+        user: response.user,
+        isGuest: false,
+        isAuthenticated: true,
+      });
+
+      toast.success(messages?.success ?? "Sign in successful!");
+
+      router.push(redirectTo ?? "/product/catalog");
+    },
+
+    onError: (error: unknown) => {
+      const message = (
+        error as {
+          response?: { data?: { message?: string } };
+        }
+      )?.response?.data?.message;
+
+      toast.error(
+        typeof message === "string"
+          ? message
+          : (messages?.error ?? "Sign in failed!"),
       );
     },
   });
