@@ -65,7 +65,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
 
   return (
     <div
-      className={cn("flex flex-col flex-6", className)}
+      className={cn("flex flex-col gap-6", className)}
       {...props}
     >
       <Card className="overflow-hidden p-0">
@@ -103,7 +103,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                   <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
                   <a
                     href="/auth/forgot-password"
-                    className="ml-auto text-sm underline-offset-2"
+                    className="ml-auto text-sm underline-offset-2 hover:underline"
                   >
                     Quên mật khẩu
                   </a>
@@ -128,7 +128,8 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                     checked={watch("rememberMe")}
                     onCheckedChange={(v) => setValue("rememberMe", v === true)}
                     disabled={signInMutation.isPending}
-                  ></Checkbox>
+                  />
+                  Ghi nhớ đăng nhập
                 </label>
               </Field>
 
@@ -138,7 +139,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                   className="w-full"
                   disabled={signInMutation.isPending}
                 >
-                  {signInMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+                  {signInMutation.isPending ? "Đang đăng nhập" : "Đăng nhập"}
                 </Button>
               </Field>
 
@@ -158,7 +159,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
             <Image
               src="/login-thumbnail.jpg"
               alt="Image"
-              className="alsolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
               fill
               priority
               sizes="(max-width: 768px) 0px, 50vw"

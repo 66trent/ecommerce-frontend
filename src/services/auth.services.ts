@@ -1,6 +1,5 @@
 import { getAuthClient } from "@/lib/auth/auth-client";
 import { AuthResponse, SignInDto, SignUpDto, User } from "@/types/api.types";
-import { error } from "console";
 
 function mapAuthUser(u: {
   id: string;
